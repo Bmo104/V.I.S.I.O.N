@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión</title>
-  <link rel="stylesheet" href="/styles/styles.css">
+  <link rel="stylesheet" href="/styles/login.css">
 </head>
 <body>
   <div class="glasses-container" id="container">
@@ -46,6 +46,41 @@
     </div>
   </div>
 
-  <script src="/scripts/main.js"></script>
+  <div class="video-background-container">
+    <video id="video" autoplay muted playsinline class="bg-video">
+      <source src="" type="video/mp4">
+      Tu navegador no soporta videos de fondo.
+    </video>
+  </div>
+
+  <script src="/scripts/login.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+    
+    const videoElement = document.getElementById('video');
+
+    const videos = [
+      'videos/fondoLentes1.mp4', 
+      'videos/fondoLentes4.mp4',
+      'videos/fondoLentes5.mp4'
+    ];
+
+    function playRandomVideo() {
+
+      const randomVideo = videos[Math.floor(Math.random() * videos.length)];
+      videoElement.src = randomVideo;
+      videoElement.load();
+      videoElement.play().catch(error => {
+          console.log("La reproducción automática fue bloqueada:", error);
+      });
+    }
+
+    // Reproducir uno al cargar la página
+    playRandomVideo();
+
+    // Cambiar de video cada vez que termine el actual
+    videoElement.addEventListener('ended', playRandomVideo);
+  });
+  </script>
 </body>
 </html>

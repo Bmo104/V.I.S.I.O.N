@@ -1,0 +1,15 @@
+{
+  "catalog": [
+    {
+      "id": "429273f4-d13e-436f-a774-68589b51ae08",
+      "nombre": "Aviator Classic",
+      "marca": "Ray-Ban",
+      "sucursal": "Sucursal Centro",
+      "precioComprado": "300",
+      "precioPublico": "345",
+      "varilla": "Acetato Negro Brillante",
+      "createdAt": 1788387025424
+    }
+  ],
+  "movimientos": []
+}
