@@ -46,15 +46,15 @@ async function leerJson(ruta) {
 }
 
 async function jsonFiltrado(ruta, userID = undefined) {
-  const json = leerJson(ruta);
+  const json = await leerJson(ruta);  // ✅ Añadir await
   if (userID) { 
     const data = [];
-    for await (const element of json) {
+    for (const element of json) {  // ✅ Cambiar for await por for
       if (element.userID == userID) data.push(element);
     }
     return data;
   } else {
-    return (leerJson(ruta));
+    return await leerJson(ruta);  // ✅ Añadir await
   }
 }
 
@@ -167,26 +167,31 @@ app.get('/finance', (req, res) => {
 // -------------------------------------------------------------
 // MANEJO DE APIS
 // -------------------------------------------------------------
-app.get('/api/lentes/:id?', async (req, res) => {
+// Ruta para obtener todos los lentes
+app.get('/api/lentes', async (req, res) => {
+  try {
+    const datosLentes = await leerJson(lentesFile);
+    return res.json(datosLentes); 
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al procesar el inventario' });
+  }
+});
+
+// Ruta para obtener un lente específico por ID
+app.get('/api/lentes/:id', async (req, res) => {
   try {
     const datosLentes = await leerJson(lentesFile);
     const { id } = req.params;
 
-    // Si viene un ID en la URL, buscamos el objeto específico
-    if (id) {
-      // Si tu JSON tiene la clave "catalog", la usamos; si es directamente un array, se ajusta
-      const inventario = datosLentes.catalog || datosLentes;
-      const lenteEncontrado = inventario.find(lente => lente.id === id);
+    const inventario = datosLentes.catalog || datosLentes;
+    const lenteEncontrado = inventario.find(lente => lente.id === id);
 
-      if (!lenteEncontrado) {
-        return res.status(404).json({ error: 'Lente no encontrado' });
-      }
-
-      return res.json(lenteEncontrado);
+    if (!lenteEncontrado) {
+      return res.status(404).json({ error: 'Lente no encontrado' });
     }
 
-    // Si no hay ID, retorna toda la estructura original sin cambios
-    return res.json(datosLentes); 
+    return res.json(lenteEncontrado);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al procesar el inventario' });
