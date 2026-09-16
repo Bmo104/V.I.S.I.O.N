@@ -6,8 +6,16 @@ Nombre tipo Iron Man XD
 
 - Instalar Node.js y npm.
 - Ir a la carpeta donde quieras guardar este proyecto, y ejecutar: git clone 'https://github.com/Bmo104/V.I.S.I.O.N'
-- Ejecutar el comando: npm install express express-session body-parser
+- Ejecutar el comando: npm install express express-session body-parser fs
 - Ejecutar el comando: npm i bycript
 - Ejecutar el comando: node app.js
 - Abrir el navegador y dirigirse a http://localhost:47100
 - Eperar actualizaciones de la aplicación XD
+
+### Notas de la actualización:
+
+- Agregada la paginación de las distintas páginas internas
+- Añadidas varias funciones a app.js
+- Terminada la versión final de la página principal
+    - Añadidos los videos de stock para reproducirse al fondo
+    - Creados los 

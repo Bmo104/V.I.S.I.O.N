@@ -31,5 +31,136 @@
     </div>
   </nav>
 
+
+
+  <div class="list-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Armazón</th><th>Marca</th><th class="num">Precio</th><th>Cantidad</th><th>Carrito</th>
+        </tr>
+      </thead>
+      <tbody id="inv-tbody"></tbody>
+      <tfoot id="inv-tfoot"></tfoot>
+    </table>
+  </div>
+
+  <aside class="carrito">
+    <div class="table-sell" id="liComp">
+      <table>
+        <thead>
+          <tr>
+            <th>Armazón</th><th class="num">Cantidad</th><th class="num">Precio Unitario</th><th class="num">Precio Total</th>
+          </tr>
+        </thead>
+        <tbody id="buy-tbody"></tbody>
+        <tfoot id="buy-tfoot"></tfoot>
+      </table>
+    </div>
+  </aside>
+
+  <script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const tablaLentes = document.getElementById("inv-tbody");
+
+  const lentesJson = await obtenerDatos();
+  const lentes = lentesJson.catalog;
+
+  const iconCarrito = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart-plus" viewBox="0 0 16 16">
+      <path d="M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9z"/>
+      <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+    </svg>`
+
+  for (const lente of lentes) {
+    const tr = document.createElement('tr');
+    tablaLentes.appendChild(tr);
+    
+    // Armazón
+    const armazon = document.createElement('td');
+    armazon.innerText = lente.nombre;
+    tr.appendChild(armazon);
+
+    // Marca
+    const marca = document.createElement('td');
+    marca.innerText = lente.marca;
+    tr.appendChild(marca);
+
+    // Precio
+    const precio = document.createElement('td');
+    precio.innerText = lente.precioComprado;
+    tr.appendChild(precio);
+
+    // Cantidad
+    const cantidad = document.createElement('input');
+    cantidad.type = 'number';
+    cantidad.placeholder = 'Cantidad';
+    cantidad.min = 1;
+    cantidad.max = lente.stock;
+    cantidad.id = "i" + lente.id;
+    cantidad.step = 1;
+    const tdCantidad = document.createElement('td');
+    tdCantidad.appendChild(cantidad);
+    tr.appendChild(tdCantidad);
+
+    // Comprar
+    const comprar = document.createElement('button');
+    comprar.innerHTML = iconCarrito;
+    comprar.id = "b" + lente.id;
+    comprar.addEventListener('click', () => {
+        comprarLente(lente);
+    });
+
+    const tdComprar = document.createElement('td');
+    tdComprar.appendChild(comprar);
+    tr.appendChild(tdComprar);
+  }
+});
+
+async function comprarLente(lente) {
+
+  const cantidadInput = document.getElementById("i" + lente.id)
+
+  const cantidad = cantidadInput.value ? Number(cantidadInput.value):1;
+
+  if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > lente.stock) {
+    alert("Cantidad inválida");
+    return;
+  }
+    const carrito = document.getElementById("buy-tbody");
+
+    const tr = document.createElement('tr');
+    carrito.appendChild(tr);
+
+    // Armazón
+    const armazon = document.createElement('td');
+    armazon.innerText = lente.nombre;
+    tr.appendChild(armazon);
+
+    // Cantidad
+    const tdCantidad = document.createElement('td');
+    tdCantidad.innerText = cantidad;
+    tr.appendChild(tdCantidad);
+
+    // Precio unitario
+    const precioU = document.createElement('td');
+    precioU.innerText = lente.precioComprado;
+    tr.appendChild(precioU);
+
+    // Precio total
+    const precioT = document.createElement('td');
+    precioT.innerText = lente.precioComprado * cantidad;
+    tr.appendChild(precioT);
+}
+
+async function obtenerDatos() {
+    try {
+        const response = await fetch('/api/lentes');
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+    }
+}
+    
+  </script>
 </body>
 </html>

@@ -167,10 +167,25 @@ app.get('/finance', (req, res) => {
 // -------------------------------------------------------------
 // MANEJO DE APIS
 // -------------------------------------------------------------
-app.get('/api/lentes', async (req, res) => {
+app.get('/api/lentes/:id?', async (req, res) => {
   try {
     const datosLentes = await leerJson(lentesFile);
-    // Usamos res.json() para enviar el objeto correctamente formateado
+    const { id } = req.params;
+
+    // Si viene un ID en la URL, buscamos el objeto específico
+    if (id) {
+      // Si tu JSON tiene la clave "catalog", la usamos; si es directamente un array, se ajusta
+      const inventario = datosLentes.catalog || datosLentes;
+      const lenteEncontrado = inventario.find(lente => lente.id === id);
+
+      if (!lenteEncontrado) {
+        return res.status(404).json({ error: 'Lente no encontrado' });
+      }
+
+      return res.json(lenteEncontrado);
+    }
+
+    // Si no hay ID, retorna toda la estructura original sin cambios
     return res.json(datosLentes); 
   } catch (error) {
     console.error(error);
@@ -207,6 +222,46 @@ app.post('/api/lentes', async (req, res) => {
   } catch (error) {
     console.error("No se ha podido guardar el armazon en el json" + error);
     res.status(500).json({ error: 'Hubo un problema al guardar el lente' });
+  }
+});
+
+app.put('/api/lentes/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nArmazon, marca, sucursal, varilla, precioC, precioV, stock } = req.body;
+
+    const lentesJson = await leerJson(lentesFile);
+
+    // Buscamos el índice del lente en el catálogo
+    const index = lentesJson.catalog.findIndex(lente => lente.id === id);
+
+    if (index === -1) {
+      return res.status(404).json({ error: 'Lente no encontrado para actualizar' });
+    }
+
+    // Actualizamos solo los campos que vengan en el body, manteniendo los existentes
+    lentesJson.catalog[index] = {
+      ...lentesJson.catalog[index],
+      ...(nArmazon !== undefined && { nombre: nArmazon }),
+      ...(marca !== undefined && { marca }),
+      ...(sucursal !== undefined && { sucursal }),
+      ...(varilla !== undefined && { varilla }),
+      ...(precioC !== undefined && { precioComprado: precioC }),
+      ...(precioV !== undefined && { precioPublico: precioV }),
+      ...(stock !== undefined && { stock })
+    };
+
+    // Guardamos los cambios en el archivo JSON
+    await writeFile(lentesFile, JSON.stringify(lentesJson, null, 2));
+
+    res.json({
+      mensaje: 'Lente actualizado correctamente',
+      lente: lentesJson.catalog[index]
+    });
+
+  } catch (error) {
+    console.error("Error al actualizar el lente: " + error);
+    res.status(500).json({ error: 'Hubo un problema al actualizar el lente' });
   }
 });
 

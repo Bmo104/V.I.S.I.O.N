@@ -32,18 +32,171 @@
     </div>
   </nav>
 
-  <div class="table-wrap" style="margin-top: 100px;">
+  <div class="list-container inventory-container" style="width: auto;">
     <table>
       <thead>
         <tr>
-          <th>Armazón</th><th>Marca</th><th>Sucursal</th><th class="num">Comprados</th><th class="num">Vendidos</th>
-          <th class="num">Stock</th><th class="num">Precio compra</th><th class="num">Precio público</th><th class="num">Ganancia</th>
+          <th>ID</th>
+          <th>Armazón</th>
+          <th>Marca</th>
+          <th>Varilla</th>
+          <th class="num">Stock</th>
+          <th class="num">Precio Pagado</th>
+          <th class="num">Precio al Público</th>
+          <th>Modificar</th>
         </tr>
       </thead>
-      <tbody id="records-tbody"></tbody>
-      <tfoot id="records-tfoot"></tfoot>
+      <tbody id="inv-tbody"></tbody>
+      <tfoot id="inv-tfoot"></tfoot>
     </table>
   </div>
 
+
+  <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+  const tablaLentes = document.getElementById("inv-tbody");
+
+  const lentesJson = await obtenerDatos('/api/lentes');
+  const lentes = lentesJson.catalog;
+
+  const iconCarrito = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart-plus" viewBox="0 0 16 16">
+      <path d="M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9z"/>
+      <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+    </svg>`
+  
+  let i = 1;
+  for (const lente of lentes) {
+    const tr = document.createElement('tr');
+    tablaLentes.appendChild(tr);
+
+    // ID
+    const ID = document.createElement('td');
+    ID.innerText = i;
+    tr.appendChild(ID);
+    i++;
+    
+    // Armazón
+    const armazon = document.createElement('td');
+    armazon.id = i + "a";
+    armazon.innerText = lente.nombre;
+    tr.appendChild(armazon);
+
+    // Marca
+    const marca = document.createElement('td');
+    marca.id = i + "m";
+    marca.innerText = lente.marca;
+    tr.appendChild(marca);
+
+    // Varilla 
+    const varilla = document.createElement('td');
+    varilla.id = i + "v";
+    varilla.innerText = lente.varilla; 
+    tr.appendChild(varilla);
+
+    // Stock
+    const stock = document.createElement('td');
+    stock.id = i + "s";
+    stock.innerText = lente.stock;
+    tr.appendChild(stock);
+
+    // Precio Comprado
+    const precioC = document.createElement('td');
+    precioC.id = i + "pc";
+    precioC.innerText = lente.precioComprado;
+    tr.appendChild(precioC);
+
+    // Precio Público
+    const precioP = document.createElement('td');
+    precioP.id = i + "pp";
+    precioP.innerText = lente.precioPublico;
+    tr.appendChild(precioP);
+
+    // Modificar
+    const modificar = document.createElement('button');
+    modificar.innerHTML = iconCarrito;
+    modificar.id = i + "mod";
+    modificar.addEventListener('click', () => {
+        cambiarValores(i, lente.id);
+    });
+
+    const tdModificar = document.createElement('td');
+    tdModificar.appendChild(modificar);
+    tr.appendChild(tdModificar);
+  }
+});
+
+async function cambiarValores(i, id) {
+  const atributos = {
+    armazon: [document.getElementById(i + "a"), "ia"],
+    marca: [document.getElementById(i + "m"), "im"],
+    varilla: [document.getElementById(i + "v"), "iv"],
+    stock: [document.getElementById(i + "s"), "is"],
+    precioC: [document.getElementById(i + "pc"), "ipc"],
+    precioP: [document.getElementById(i + "pp"), "ipp"]
+  };
+
+  const modificar = document.getElementById(i + "mod");
+
+  for (const [elemento, inputId] of Object.values(atributos)) {
+    if (!elemento) continue;
+    
+    const valorActual = elemento.innerText;
+    const input = document.createElement('input');
+    
+    input.type = (inputId === "is" || inputId === "ipc" || inputId === "ipp") ? "number" : "text";
+    input.value = valorActual;
+    input.id = inputId;
+    
+    elemento.innerText = "";
+    elemento.appendChild(input);
+  }
+
+  modificar.innerText = "Guardar Cambios";
+  modificar.onclick = async () => {
+    await guardarDatos(i, id);
+  };
+}
+
+async function guardarDatos(i, id) {
+  // Extraemos los valores de los inputs creados dinámicamente
+  const bodyData = {
+    nArmazon: document.getElementById("ia")?.value,
+    marca: document.getElementById("im")?.value,
+    varilla: document.getElementById("iv")?.value,
+    stock: Number(document.getElementById("is")?.value),
+    precioC: document.getElementById("ipc")?.value,
+    precioV: document.getElementById("ipp")?.value
+  };
+
+  try {
+    const respuesta = await fetch(`/api/lentes/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bodyData)
+    });
+
+    if (!respuesta.ok) throw new Error('Error al actualizar');
+
+    const resultado = await respuesta.json();
+    
+    // Recargamos o actualizamos la tabla con los datos guardados
+    console.log(resultado.mensaje);
+    location.reload(); // O puedes reescribir los td manualmente con los nuevos datos
+
+  } catch (error) {
+    console.error("Error:", error);
+    alert("No se pudieron guardar los cambios");
+  }
+}
+
+async function obtenerDatos(dir) {
+    try {
+        const response = await fetch(dir);
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+    }
+}
+  </script>
 </body>
 </html>
