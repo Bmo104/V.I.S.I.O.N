@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión</title>
+  <link rel="stylesheet" href="/styles/login.css">
+</head>
+<body>
+  <div class="glasses-container" id="container">
+    
+    <div class="form-container sign-in-container">
+      <form method="POST" action="/login">
+        <h1>Iniciar sesión</h1>
+        <input type="text" name="username" placeholder="Nombre de usuario" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <button type="submit">Entrar</button>
+      </form>
+    </div>
+
+    <div class="form-container sign-up-container">
+      <form method="POST" action="/signup">
+        <h1>Crear cuenta</h1>
+        <input type="text" name="username" placeholder="Nombre de usuario" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <button type="submit">Registrarse</button>
+      </form>
+    </div>
+
+    <div class="overlay-container">
+      <div class="overlay">
+        
+        <div class="overlay-panel overlay-left">
+          <h1>¿Ya tienes cuenta?</h1>
+          <p>Si ya tienes una cuenta creada, puedes iniciar sesión aquí.</p>
+          <button class="ghost" id="signIn">Ir a Iniciar Sesión</button>
+        </div>
+        
+        <div class="overlay-panel overlay-right">
+          <h1>¿Prefieres crear cuenta?</h1>
+          <p>Si no tienes una cuenta, puedes crear una aquí.</p>
+          <button class="ghost" id="signUp">Ir a Crear Cuenta</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- <script src="/public/scripts/login.js"></script>  -->
+</body>
+</html>
