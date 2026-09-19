@@ -33,13 +33,13 @@
         <div class="overlay-panel overlay-left">
           <h1>¿Ya tienes cuenta?</h1>
           <p>Si ya tienes una cuenta creada, puedes iniciar sesión aquí.</p>
-          <button class="ghost" id="signIn">Ir a Iniciar Sesión</button>
+          <button type="button" class="ghost" id="signIn">Ir a Iniciar Sesión</button>
         </div>
         
         <div class="overlay-panel overlay-right">
           <h1>¿Prefieres crear cuenta?</h1>
           <p>Si no tienes una cuenta, puedes crear una aquí.</p>
-          <button class="ghost" id="signUp">Ir a Crear Cuenta</button>
+          <button type="button" class="ghost" id="signUp">Ir a Crear Cuenta</button>
         </div>
         
       </div>
@@ -53,34 +53,6 @@
     </video>
   </div>
 
-  <script src="/scripts/login.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-    
-    const videoElement = document.getElementById('video');
-
-    const videos = [
-      'videos/fondoLentes1.mp4', 
-      'videos/fondoLentes4.mp4',
-      'videos/fondoLentes5.mp4'
-    ];
-
-    function playRandomVideo() {
-
-      const randomVideo = videos[Math.floor(Math.random() * videos.length)];
-      videoElement.src = randomVideo;
-      videoElement.load();
-      videoElement.play().catch(error => {
-          console.log("La reproducción automática fue bloqueada:", error);
-      });
-    }
-
-    // Reproducir uno al cargar la página
-    playRandomVideo();
-
-    // Cambiar de video cada vez que termine el actual
-    videoElement.addEventListener('ended', playRandomVideo);
-  });
-  </script>
+  <!-- <script src="/public/scripts/login.js"></script> -->
 </body>
 </html>

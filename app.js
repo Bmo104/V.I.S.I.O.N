@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const fs = require('fs'); // Añadido para generar los archivos
 const { readFile, writeFile } = fs.promises;
 const path = require('path'); // Añadido para manejar rutas de forma segura
+const console = require('console');
 
 const app = express();
 const port = 47100;
@@ -18,7 +19,8 @@ const lentesFile = path.join(__dirname, 'lentes.json');
 function inicializarArchivos() {
   // 1. Generar users.json si no existe
   if (!fs.existsSync(usersFile)) {
-    fs.writeFileSync(usersFile, JSON.stringify([], null, 2), 'utf8');
+    const usersEstructuraBase = [{ id: 1, username: 'admin', password: bcrypt.hashSync('1234', 10) }]
+    fs.writeFileSync(usersFile, JSON.stringify(usersEstructuraBase, null, 2), 'utf8');
     console.log('Archivo users.json creado con éxito.');
   }
 
@@ -61,6 +63,7 @@ async function jsonFiltrado(ruta, userID = undefined) {
 // -------------------------------------------------------------
 // MIDDLEWARES
 // -------------------------------------------------------------
+
 // Procesamiento de datos de formularios
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -100,24 +103,23 @@ app.use((req, res, next) => {
 // Archivos estáticos (protegidos por el middleware de arriba)
 app.use(express.static('public'));
 
-// Base de datos en memoria (temporal)
-const users = [
-  { id: 1, username: 'admin', password: bcrypt.hashSync('1234', 10) }
-];
-
 // -------------------------------------------------------------
 // RUTAS DE AUTENTICACIÓN
 // -------------------------------------------------------------
+
 // Ruta del formulario de Login
 app.get('/login', (req, res) => {
   return res.redirect('/login.html');
 });
 
 // Manejo del Login
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
+  const users = await leerJson(usersFile);
+
   const user = users.find(u => u.username === username);
 
+  // 2. Verificamos que el usuario exista
   if (user) {
     const isPasswordValid = bcrypt.compareSync(password, user.password);
 
@@ -129,7 +131,6 @@ app.post('/login', (req, res) => {
 
   res.send('Invalid credentials. Please try again.');
 });
-
 // Manejo del Logout
 app.post('/logout', (req, res) => {
   req.session.destroy((err) => {
@@ -139,6 +140,22 @@ app.post('/logout', (req, res) => {
     res.clearCookie('connect.sid');
     res.redirect('/login');
   });
+});
+
+// Manejo del signup
+app.post('/signup', async (req, res) => {
+  console.log("si nos registramos")
+  try {
+    const { username, password } = req.body;
+    const users = await leerJson(usersFile);
+    const user = { id: crypto.randomUUID(), username: username, password: bcrypt.hashSync(password, 10) };
+    users.push(user);
+
+    await writeFile(lentesFile, JSON.stringify(users, null, 2));
+
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 // -------------------------------------------------------------
@@ -267,6 +284,80 @@ app.put('/api/lentes/:id', async (req, res) => {
   } catch (error) {
     console.error("Error al actualizar el lente: " + error);
     res.status(500).json({ error: 'Hubo un problema al actualizar el lente' });
+  }
+});
+
+app.post('/api/compras', async (req, res) => {
+  try {
+    const { id, cantidad, precioUnitario } = req.body;
+
+    if (req.body === 0) {
+      return res.status(400).json({ error: 'La lista de compras está vacía' });
+    }
+
+    const idMov = crypto.randomUUID();
+    const lentesJson = await leerJson(lentesFile);
+    const fechaHoy = new Date().toISOString().split('T')[0];
+
+    const movimiento = {
+      "id": idMov,
+      "frameId": id,
+      "tipo": "compra",
+      "cantidad": cantidad,
+      "precioUnitario": precioUnitario,
+      "fecha": fechaHoy,
+      "createdAt": Date.now()
+    }
+
+    const index = lentesJson.catalog.findIndex(lente => lente.id === id);
+    lentesJson.catalog[index].stock += cantidad; //Quitamos los lentes que acabamos de comprar del stock
+
+    lentesJson.movimientos.push(movimiento);
+
+    await writeFile(lentesFile, JSON.stringify(lentesJson, null, 2));
+
+    res.status(201).json({
+      mensaje: 'Compra registrada exitosamente'
+    });
+  } catch (error) {
+    console.error(`Error al generar una compra ${error}`);
+  }
+});
+
+app.post('/api/ventas', async (req, res) => {
+  try {
+    const { id, cantidad, precioUnitario } = req.body;
+
+    if (req.body === 0) {
+      return res.status(400).json({ error: 'La lista de compras está vacía' });
+    }
+
+    const idMov = crypto.randomUUID();
+    const lentesJson = await leerJson(lentesFile);
+    const fechaHoy = new Date().toISOString().split('T')[0];
+
+    const movimiento = {
+      "id": idMov,
+      "frameId": id,
+      "tipo": "venta",
+      "cantidad": cantidad,
+      "precioUnitario": precioUnitario,
+      "fecha": fechaHoy,
+      "createdAt": Date.now()
+    }
+
+    const index = lentesJson.catalog.findIndex(lente => lente.id === id);
+    lentesJson.catalog[index].stock -= cantidad; //Quitamos los lentes que acabamos de comprar del stock
+
+    lentesJson.movimientos.push(movimiento);
+
+    await writeFile(lentesFile, JSON.stringify(lentesJson, null, 2));
+
+    res.status(201).json({
+      mensaje: 'Compra registrada exitosamente'
+    });
+  } catch (error) {
+    console.error(`Error al generar una venta ${error}`);
   }
 });
 

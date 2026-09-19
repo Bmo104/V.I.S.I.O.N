@@ -537,7 +537,7 @@ tfoot td{ font-weight:700; border-bottom:none; border-top:1px solid var(--line-s
 /* Carrito */
 
 .carrito {
-  width: 380px;
+  width: 450px;
   max-width: 100%;
   position: fixed;
   background: var(--bg-glass);
@@ -555,6 +555,7 @@ tfoot td{ font-weight:700; border-bottom:none; border-top:1px solid var(--line-s
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 320px;
   min-height: 400px;
 }
 
@@ -671,6 +672,34 @@ tfoot td{ font-weight:700; border-bottom:none; border-top:1px solid var(--line-s
     padding: 8px 10px !important;
     font-size: 0.8rem;
   }
+}
+
+#comprar-carrito-btn{
+  padding: 6px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.08s ease;
+  white-space: nowrap;
+}
+
+#comprar-carrito-btn:hover {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+#comprar-carrito-btn:active {
+  transform: scale(0.95);
+}
+
+#comprar-carrito-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 
