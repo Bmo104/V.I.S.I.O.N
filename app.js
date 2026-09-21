@@ -1,7 +1,7 @@
-const express = require('express');
-const session = require('express-session');
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
+const express = require('express'); // Para gestionar la api
+const session = require('express-session'); // Para gestionar las cuentas y sesiones
+const bcrypt = require('bcrypt'); // Para encriptar las contraseñas
+const crypto = require('crypto'); // Para generar los id's aleatorios
 const fs = require('fs'); // Añadido para generar los archivos
 const { readFile, writeFile } = fs.promises;
 const path = require('path'); // Añadido para manejar rutas de forma segura
@@ -81,6 +81,7 @@ app.use((req, res, next) => {
   // 1. Agregamos las rutas de tu CSS y JS para que puedan cargar sin sesión
   const rutasPermitidas = [
     '/login', 
+    '/signup',
     '/login.html', 
     '/styles/login.css', 
     '/scripts/login.js'
@@ -144,17 +145,33 @@ app.post('/logout', (req, res) => {
 
 // Manejo del signup
 app.post('/signup', async (req, res) => {
-  console.log("si nos registramos")
+  console.log("si nos registramos");
   try {
     const { username, password } = req.body;
     const users = await leerJson(usersFile);
-    const user = { id: crypto.randomUUID(), username: username, password: bcrypt.hashSync(password, 10) };
+
+    // Evitar usernames duplicados
+    const existingUser = users.find(u => u.username === username);
+    if (existingUser) {
+      return res.send('El usuario ya existe. Por favor elige otro nombre.');
+    }
+
+    const user = {
+      id: crypto.randomUUID(),
+      username: username,
+      password: bcrypt.hashSync(password, 10)
+    };
     users.push(user);
 
-    await writeFile(lentesFile, JSON.stringify(users, null, 2));
+    await writeFile(usersFile, JSON.stringify(users, null, 2));
+
+    // Logueamos automáticamente al usuario recién creado
+    req.session.userId = user.id;
+    return res.redirect('/index.html');
 
   } catch (error) {
     console.error(error);
+    return res.status(500).send('Error al registrar. Intenta de nuevo.');
   }
 });
 
