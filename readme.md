@@ -14,5 +14,5 @@ Nombre tipo Iron Man XD
 
 ### Notas de la actualización:
 
--Agregada la opción de filtrar por fechas
--Agregados mensajes
+- Agregada la opción de filtrar por fechas
+- Agregados mensajes
