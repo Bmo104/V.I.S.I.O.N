@@ -248,8 +248,9 @@ async function enviarCompra(datosAEnviar) {
       throw new Error('Error en la respuesta del servidor');
     }
 
-    const resultado = await respuesta.json(); // Leemos la respuesta de la API
-    console.log('Compra procesada con éxito:', resultado);
+    const resultado = await respuesta.json();
+    alert('Compra procesada con éxito:', resultado);
+    window.location.reload();
     
   } catch (error) {
     console.error('Hubo un problema al enviar la compra:', error);

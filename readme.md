@@ -14,8 +14,5 @@ Nombre tipo Iron Man XD
 
 ### Notas de la actualización:
 
-- Agregada la paginación de las distintas páginas internas
-- Añadidas varias funciones a app.js
-- Terminada la versión final de la página principal
-    - Añadidos los videos de stock para reproducirse al fondo
-    - Creados los 
+-Agregada la opción de filtrar por fechas
+-Agregados mensajes
