@@ -1,6 +1,8 @@
-# Visionary Integrated System for Inventory & Optical Navigation
+# VISION
 
-Nombre tipo Iron Man XD
+Visionary Integrated System for Inventory & Optical Navigation 
+Nombre placeholder para desarrollo
+Cree este sistema para reemplazar la base de datos anterior (una tabla de excel) de un cliente, pero tras presentarle el sistema me pidió que hiciera cambios y luego nunca me lo pagó, por lo que decidí publicarlo, aún no sé si debería darle algún tipo de mantenimiento al proyecto, pero que al menos me sirva como portafolio de evidencias
 
 ### Instrucciones de instalación:
 
@@ -10,9 +12,7 @@ Nombre tipo Iron Man XD
 - Ejecutar el comando: npm i bycript
 - Ejecutar el comando: node app.js
 - Abrir el navegador y dirigirse a http://localhost:47100
-- Eperar actualizaciones de la aplicación XD
 
 ### Notas de la actualización:
 
-- Agregada la opción de filtrar por fechas
-- Agregados mensajes
+- Versión pública 1.0
